@@ -4,7 +4,19 @@ import {ALL_TODO, ADD_TODO} from "../apollo/todos";
 
 const AddTodo = () => {
     const [input, setInput] = useState('');
-    const [addTodo, {error}] = useMutation(ADD_TODO)
+    const [addTodo, {error}] = useMutation(ADD_TODO, {
+        // refetchQueries:[{ query: ALL_TODO}]
+        update(cache, { data: {newTodo} }) {
+            const {todos} = cache.readQuery({query: ALL_TODO});
+            cache.writeQuery({
+                query:ALL_TODO,
+                data: {
+                    todos: [newTodo, ...todos]
+                }
+            })
+        }
+    })
+
 
     const handleAddTodo = (event) => {
         event.preventDefault();
